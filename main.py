@@ -23,6 +23,8 @@ app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
 
+UPLOADS_DIR = "uploads"
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 def get_db():
