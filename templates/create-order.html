@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kawiarnia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container-fuid m-5">
+    <div class="row gy-3">
+        {% for product in products %}
+        <div class="col-3">
+            <img src="{{ product.image_url }}" class="card-img-top" alt="Product Image">
+            <div class="card text-bg-light text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">Cena: {{ product.price }} ZŁ</p>
+                    <button
+                        class="btn btn-secondary add-to-order"
+                        data-product-id="{{ product.id }}"
+                        data-product-name="{{ product.name }}"
+                        data-product-price="{{ product.price }}">
+                        Dodaj do zamówienia
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-5">
+        <div class="col">
+            <h3>Twoje zamówienie</h3>
+            <ul id="order-list" class="list-group">
+            </ul>
+            <p class="mt-3"><strong>Łączna suma:</strong> <span id="total-price">0.00</span> ZŁ</p>
+            <button id="create-order" class="btn btn-primary mt-3">Utwórz Zamówienie</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+<script>
+    const order = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".add-to-order").forEach(button => {
+            button.addEventListener("click", () => {
+                const productId = button.getAttribute("data-product-id");
+                const productName = button.getAttribute("data-product-name");
+                const productPrice = parseFloat(button.getAttribute("data-product-price"));
+
+                addToOrder(productId, productName, productPrice);
+                updateOrderDisplay();
+            });
+        });
+
+        document.getElementById("create-order").addEventListener("click", () => {
+            sendOrder();
+        });
+    });
+
+    function addToOrder(productId, productName, productPrice) {
+        const existingProduct = order.find(item => item.id === productId);
+
+        if (existingProduct) {
+            existingProduct.quantity++;
+        } else {
+            order.push({
+                id: productId,
+                name: productName,
+                price: productPrice,
+                quantity: 1
+            });
+        }
+    }
+
+    function updateOrderDisplay() {
+        const orderList = document.getElementById("order-list");
+        const totalPriceElement = document.getElementById("total-price");
+
+        // Clear existing order items
+        orderList.innerHTML = "";
+
+        let totalPrice = 0;
+
+        order.forEach(product => {
+            totalPrice += product.price * product.quantity;
+
+            // Create a list item for each product in the order
+            const listItem = document.createElement("li");
+            listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+            listItem.innerHTML = `
+                <span>${product.name} (x${product.quantity})</span>
+                <span>${(product.price * product.quantity).toFixed(2)} ZŁ</span>
+            `;
+
+            orderList.appendChild(listItem);
+        });
+
+        // Update total price
+        totalPriceElement.textContent = totalPrice.toFixed(2);
+    }
+
+    function sendOrder() {
+    if (order.length === 0) {
+        alert("Zamówienie jest puste!");
+        return;
+    }
+
+    // Prepare the order data in the correct format
+    const orderData = {
+        products: order.map(product => ({
+            product_id: product.id,
+            quantity: product.quantity
+        }))
+    };
+
+    // Send the order data as JSON
+    fetch("/create-order", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Zamówienie zostało utworzone!");
+            location.reload(); // Reload the page to clear the order
+        } else {
+            alert("Wystąpił błąd podczas tworzenia zamówienia.");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+    }
+</script>
+</body>
+</html>

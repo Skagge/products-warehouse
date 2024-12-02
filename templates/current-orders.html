@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kawiarnia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Aktualne zamówienia</h1>
+
+    <!-- Check if there are any orders -->
+    {% if orders %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for order in orders %}
+                <div class="col">
+                    <!-- Card for each order -->
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Zamówienie #{{ order.id }}</h5>
+                            <ul class="list-group list-group-flush">
+                                {% for item in order.products_with_quantity %}
+                                    <li class="list-group-item">
+                                        <strong>{{ item.product.name }}</strong>
+                                        (x{{ item.quantity }}) -
+                                        <span class="badge bg-secondary">{{ item.product.price * item.quantity }} ZŁ</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <p class="mt-3">
+                                <strong>Do zapłaty:</strong>
+                                <span class="badge bg-success">{{ order.total_price }} ZŁ</span>
+                            </p>
+                            <div class="d-flex justify-content-center">
+                                    <button class="btn btn-primary change-status" data-order-id="{{ order.id }}">
+                                        Przekaż do wydania
+                                    </button>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Nie ma aktualnie żadnych zamówień.</p>
+    {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Add click event listeners to each status change button
+        document.querySelectorAll(".change-status").forEach(button => {
+            button.addEventListener("click", function () {
+                const orderId = this.getAttribute("data-order-id");
+
+                // Send a PATCH request to update the order status
+                fetch(`/update-order-status/${orderId}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Check if the status update was successful
+                    if (data.message) {
+                        alert(data.message);  // Display success message
+                        location.reload();  // Reload the page to reflect the changes
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while updating the order status.");
+                });
+            });
+        });
+    });
+</script>
+</body>
+</html>

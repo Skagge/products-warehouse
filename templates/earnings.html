@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kawiarnia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Zakończone zamówienia</h1>
+    <div class="mb-4">
+        <h3>
+            <strong>Całkowity zarobek:</strong>
+            <span class="badge bg-primary">{{ orders.total_orders_price }} ZŁ</span>
+        </h3>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for order in orders.orders %}
+        <div class="col">
+            <!-- Card for each order -->
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Zamówienie #{{ order.id }}</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for item in order.products_with_quantity %}
+                        <li class="list-group-item">
+                            <strong>{{ item.product.name }}</strong>
+                            (x{{ item.quantity }}) -
+                            <span class="badge bg-secondary">{{ item.product.price * item.quantity }} ZŁ</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <p class="mt-3">
+                        <strong>Zapłacono:</strong>
+                        <span class="badge bg-success">{{ order.total_price }} ZŁ</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
