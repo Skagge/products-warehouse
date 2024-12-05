@@ -13,38 +13,44 @@
 
     <!-- Check if there are any orders -->
     {% if orders %}
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            {% for order in orders %}
-                <div class="col">
-                    <!-- Card for each order -->
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Zamówienie #{{ order.id }}</h5>
-                            <ul class="list-group list-group-flush">
-                                {% for item in order.products_with_quantity %}
-                                    <li class="list-group-item">
-                                        <strong>{{ item.product.name }}</strong>
-                                        (x{{ item.quantity }}) -
-                                        <span class="badge bg-secondary">{{ item.product.price * item.quantity }} ZŁ</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                            <p class="mt-3">
-                                <strong>Do zapłaty:</strong>
-                                <span class="badge bg-success">{{ order.total_price }} ZŁ</span>
-                            </p>
-                            <div class="d-flex justify-content-center">
-                                    <button class="btn btn-primary change-status" data-order-id="{{ order.id }}">
-                                        Przekaż do wydania
-                                    </button>
-                                </div>
-                        </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for order in orders %}
+        <div class="col">
+            <!-- Card for each order -->
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Zamówienie #{{ order.id }}</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for item in order.products_with_quantity %}
+                        <li class="list-group-item">
+                            <strong>{{ item.product.name }}</strong>
+                            (x{{ item.quantity }}) -
+                            <span class="badge bg-secondary">{{ item.product.price * item.quantity }} ZŁ</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <p class="mt-3">
+                        <strong>Do zapłaty:</strong>
+                        <span class="badge bg-success">{{ order.total_price }} ZŁ</span>
+                    </p>
+                    <div class="d-flex justify-content-center">
+                        {% if order.status.value == 'IN_PROGRESS' %}
+                        <button class="btn btn-primary change-status" data-order-id="{{ order.id }}">
+                            Gotowe
+                        </button>
+                        {% elif order.status.value == 'READY' %}
+                        <button class="btn btn-primary change-status" data-order-id="{{ order.id }}">
+                            Zakończ zamówienie
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
-            {% endfor %}
+            </div>
         </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <p>Nie ma aktualnie żadnych zamówień.</p>
+    <p>Nie ma aktualnie żadnych zamówień.</p>
     {% endif %}
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -70,18 +76,18 @@
                         "Content-Type": "application/json"
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    // Check if the status update was successful
-                    if (data.message) {
-                        alert(data.message);  // Display success message
-                        location.reload();  // Reload the page to reflect the changes
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("An error occurred while updating the order status.");
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        // Check if the status update was successful
+                        if (data.message) {
+                            alert(data.message);  // Display success message
+                            location.reload();  // Reload the page to reflect the changes
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("An error occurred while updating the order status.");
+                    });
             });
         });
     });

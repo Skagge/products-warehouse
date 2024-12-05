@@ -50,7 +50,7 @@ def create_order(db: Session, products: list):
 
 def get_in_progress_orders(db: Session):
     # Query orders with the 'IN_PROGRESS' status
-    orders = db.query(Order).filter(Order.status == 'IN_PROGRESS').all()
+    orders = db.query(Order).filter(Order.status.in_(['READY', 'IN_PROGRESS'])).all()
 
     # Iterate through each order and load the associated products with quantities
     for order in orders:
@@ -74,7 +74,7 @@ def get_in_progress_orders(db: Session):
 
 def get_ready_orders(db: Session):
     # Query orders with the 'READY' status
-    orders = db.query(Order).filter(Order.status == 'READY').all()
+    orders = db.query(Order).filter(Order.status.in_(['READY', 'IN_PROGRESS'])).all()
 
     # Iterate through each order and load the associated products with quantities
     for order in orders:

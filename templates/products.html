@@ -18,7 +18,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ product.name }}</h5>
                     <p class="card-text">Cena: {{ product.price }} ZŁ</p>
-<!--                    <button class="btn btn-secondary">Edytuj</button>-->
+                    <!--                    <button class="btn btn-secondary">Edytuj</button>-->
                     <button
                             class="btn btn-danger delete-button"
                             data-product-id="{{ product.id }}">
@@ -70,6 +70,16 @@
             </form>
         </div>
     </div>
+    <div class="row mt-3">
+        <div class="col d-flex justify-content-end">
+            <button
+                    id="delete-all-orders-button"
+                    class="btn btn-danger mt-3">
+                Reset
+            </button>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -90,6 +100,25 @@
                 const productId = this.getAttribute("data-product-id");
                 deleteProduct(productId);
             });
+        });
+
+        const deleteAllOrdersButton = document.getElementById("delete-all-orders-button");
+
+        deleteAllOrdersButton.addEventListener("click", function () {
+            if (confirm("Czy na pewno chcesz usunąć wszystkie zamówienia?")) {
+                fetch("/delete-all-orders", {
+                    method: "DELETE"
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert("Wszystkie zamówienia zostały usunięte.");
+                            location.reload();
+                        } else {
+                            alert("Wystąpił błąd podczas usuwania zamówień.");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            }
         });
     });
 

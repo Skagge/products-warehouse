@@ -171,3 +171,18 @@ async def delete_product(product_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Produkt został usunięty"}
+
+from fastapi import HTTPException
+
+@app.delete("/delete-all-orders")
+async def delete_all_orders(db: Session = Depends(get_db)):
+    try:
+        # Delete all records from the order_product_table
+        db.execute(order_product_table.delete())
+        # Delete all records from the orders table
+        db.query(Order).delete()
+        db.commit()
+        return {"message": "All orders and related products have been deleted successfully."}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An error occurred while deleting data.")
