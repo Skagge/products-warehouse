@@ -17,7 +17,7 @@
         {% for order in orders %}
         <div class="col">
             <!-- Card for each order -->
-            <div class="card h-100">
+            <div class="card h-100 border-5 {% if order.status.value == 'IN_PROGRESS' %}border-danger{% elif order.status.value == 'READY' %}border-success{% endif %}">
                 <div class="card-body">
                     <h5 class="card-title">Zamówienie #{{ order.id }}</h5>
                     <ul class="list-group list-group-flush">
